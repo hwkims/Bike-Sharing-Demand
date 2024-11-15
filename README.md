@@ -125,3 +125,156 @@ count: 모델이 예측한 자전거 대여 수
 해당 모델을 검증 데이터에 대해 평가하여 RMSE와 MAE 값을 계산하여 성능을 측정했습니다.
 마지막으로, 모델의 예측 결과를 제출 파일로 저장하였습니다.
 모델의 성능은 전반적으로 매우 좋았으며, 이 모델은 테스트 데이터에 대해서도 유효한 예측을 할 것으로 기대됩니다.
+
+
+
+
+
+새로운 분석을 바탕으로, 각 변수들의 관계를 더 직관적으로 시각화해 보겠습니다.
+
+1. 라이브러리 설치 및 데이터 로드
+먼저 필요한 라이브러리를 설치하고 데이터를 로드합니다:
+
+bash
+코드 복사
+pip install pandas seaborn matplotlib
+2. 전체 코드: Seaborn을 사용한 시각화와 분석
+python
+코드 복사
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Seaborn 스타일 설정
+sns.set(style="whitegrid", palette="muted")
+
+# CSV 파일을 pandas DataFrame으로 읽어들입니다.
+data = pd.read_csv('train.csv')
+
+# datetime을 pandas datetime 형식으로 변환
+data['datetime'] = pd.to_datetime(data['datetime'])
+
+# 'datetime'을 인덱스로 설정하여 시계열 데이터를 분석할 수 있게 만듭니다.
+data.set_index('datetime', inplace=True)
+
+# 데이터의 첫 몇 줄을 확인하여 정상적으로 로드되었는지 확인
+print(data.head())
+
+# 1. 시간대별 대여 수량 (Casual, Registered, Total Count)
+plt.figure(figsize=(14, 8))
+sns.lineplot(data=data[['casual', 'registered', 'count']], dashes=False, markers=True)
+plt.title('Hourly Bike Rentals: Casual, Registered, and Total Counts', fontsize=16)
+plt.xlabel('Time', fontsize=12)
+plt.ylabel('Count of Bike Rentals', fontsize=12)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 2. 온도(temp)와 체감 온도(atemp) 간의 관계 (산점도)
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='temp', y='atemp', data=data, hue='season', palette='coolwarm', alpha=0.7)
+plt.title('Temperature vs. Feels Like Temperature', fontsize=16)
+plt.xlabel('Temperature (°C)', fontsize=12)
+plt.ylabel('Feels Like Temperature (°C)', fontsize=12)
+plt.tight_layout()
+plt.show()
+
+# 3. 날씨(weather)와 대여 수(count) 간의 관계 (박스플롯)
+plt.figure(figsize=(8, 6))
+sns.boxplot(x='weather', y='count', data=data, palette='coolwarm')
+plt.title('Bike Rentals vs Weather Condition', fontsize=16)
+plt.xlabel('Weather Condition', fontsize=12)
+plt.ylabel('Bike Rentals Count', fontsize=12)
+plt.tight_layout()
+plt.show()
+
+# 4. 시간대별 기온(temp)과 습도(humidity) 변화 (시간별 선 그래프)
+plt.figure(figsize=(14, 8))
+sns.lineplot(data=data[['temp', 'humidity']], palette='tab10')
+plt.title('Hourly Temperature and Humidity', fontsize=16)
+plt.xlabel('Time', fontsize=12)
+plt.ylabel('Value', fontsize=12)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 5. 휴일(holiday)과 대여 수(count) 간의 관계 (박스플롯)
+plt.figure(figsize=(8, 6))
+sns.boxplot(x='holiday', y='count', data=data, palette='pastel')
+plt.title('Bike Rentals on Holidays vs Non-Holidays', fontsize=16)
+plt.xlabel('Holiday (0: No, 1: Yes)', fontsize=12)
+plt.ylabel('Bike Rentals Count', fontsize=12)
+plt.tight_layout()
+plt.show()
+
+# 6. 기온(temp)과 대여 수(count) 간의 관계 (산점도)
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='temp', y='count', data=data, hue='season', palette='viridis', alpha=0.7)
+plt.title('Bike Rentals vs Temperature', fontsize=16)
+plt.xlabel('Temperature (°C)', fontsize=12)
+plt.ylabel('Bike Rentals Count', fontsize=12)
+plt.tight_layout()
+plt.show()
+3. 분석 설명 및 시각화
+시간대별 대여 수량 (Casual, Registered, Total Count):
+
+목표: 시간에 따른 자전거 대여 수의 변화를 시각화합니다. casual, registered, count 세 가지 대여 수를 비교하여 시계열의 패턴을 확인할 수 있습니다.
+분석: count는 전체 대여 수를 나타내며, casual은 비회원 대여 수, registered는 회원 대여 수입니다. 이를 통해 특정 시간대(예: 아침, 저녁)에 회원과 비회원 대여 패턴이 어떻게 달라지는지 확인할 수 있습니다.
+온도와 체감 온도 간의 관계 (산점도):
+
+목표: 실제 온도(temp)와 체감 온도(atemp)의 관계를 시각화합니다.
+분석: 체감 온도는 실제 온도 외에도 바람, 습도 등 다른 변수의 영향을 받기 때문에, 두 변수 간의 상관관계를 확인하고, 계절(season)에 따른 변화를 색으로 구분하여 계절적 차이를 관찰합니다.
+날씨 조건(weather)과 대여 수(count) 간의 관계 (박스플롯):
+
+목표: weather 변수(1: 맑음, 2: 흐림, 3: 비, 4: 눈)와 대여 수의 분포를 박스플롯으로 확인합니다.
+분석: 날씨 조건이 자전거 대여 수에 미치는 영향을 분석할 수 있습니다. 예를 들어, 비가 오는 날씨에는 대여 수가 감소할 가능성이 높고, 맑은 날씨에는 대여 수가 증가하는 경향이 있을 수 있습니다.
+시간대별 기온(temp)과 습도(humidity) 변화:
+
+목표: 시간에 따른 온도(temp)와 습도(humidity)의 변화를 선 그래프로 확인합니다.
+분석: 온도와 습도의 변화 패턴을 시각적으로 비교하여, 하루 동안 날씨가 어떻게 변하는지, 기온과 습도의 상관관계를 분석할 수 있습니다.
+휴일 여부와 대여 수(count) 간의 관계 (박스플롯):
+
+목표: 휴일(holiday)과 자전거 대여 수(count) 간의 관계를 분석합니다.
+분석: 휴일과 비휴일의 자전거 대여 수 차이를 비교하여, 사람들이 휴일에 자전거를 더 많이 대여하는지, 아니면 주중에 더 많이 대여하는지 확인할 수 있습니다.
+기온과 대여 수(count) 간의 관계 (산점도):
+
+목표: 기온(temp)과 자전거 대여 수(count) 간의 관계를 시각화합니다.
+분석: 기온이 높을수록 자전거 대여 수가 증가하는 경향이 있을 수 있으며, 이를 시각적으로 분석할 수 있습니다.
+4. 결과 및 분석 인사이트
+시간대별 대여 수: 아침 7-9시와 저녁 5-7시에 대여 수가 급증하는 패턴을 볼 수 있을 것입니다. 비회원(casual) 대여는 주로 낮 시간대에 많고, 회원(registered) 대여는 아침과 저녁 시간대에 집중될 수 있습니다.
+
+온도와 체감 온도 관계: 체감 온도는 실제 온도와 비슷하지만 약간 차이가 날 수 있습니다. 특히 바람이 불거나 습도가 높을 때 체감 온도가 실제 온도보다 낮거나 높게 느껴집니다.
+
+날씨와 대여 수: 비나 눈이 오는 날에는 대여 수가 줄어들고, 맑은 날에는 대여 수가 증가하는 경향을 보일 수 있습니다.
+
+휴일 여부: 휴일에는 사람들이 자전거를 더 많이 대여하는 경향이 있을 수 있으며, 이는 여가 활동이 증가하기 때문입니다.
+
+기온과 대여 수: 기온이 높을수록 자전거 대여 수가 증가하는 경향이 나타날 가능성이 큽니다.
+
+이러한 시각화와 분석을 통해 자전거 대여 패턴과 환경적 요인 간의 관계를 이해할 수 있습니다.
+
+![image](https://github.com/user-attachments/assets/d440dc83-c642-40a0-8082-88b2c4f995db)
+
+
+![image](https://github.com/user-attachments/assets/df5e47b1-9f2d-4b58-bd49-df4472fc35bb)
+
+![image](https://github.com/user-attachments/assets/eac6c2ee-8b48-4220-92bb-2c708a9e913d)
+
+![image](https://github.com/user-attachments/assets/b65c1c64-6ae5-4164-994b-2ad31409af01)
+
+
+![image](https://github.com/user-attachments/assets/cf2938dd-3887-463e-81b9-1eb0fd00135e)
+
+![image](https://github.com/user-attachments/assets/ccc92764-d8e2-4244-862c-d239f985317d)
+
+
+
+
+
+![image](https://github.com/user-attachments/assets/5097ae48-f5d3-4a58-9541-a744d8a1ce22)
+
+![image](https://github.com/user-attachments/assets/ea343e8f-c5c4-4aed-ae96-c2e0d51b2663)
+
+
+
+

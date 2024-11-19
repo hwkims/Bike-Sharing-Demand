@@ -2,6 +2,7 @@
 https://www.kaggle.com/competitions/bike-sharing-demand/leaderboard
 ![image](https://github.com/user-attachments/assets/953ab93c-2e6b-4212-94c1-cac89ff2d00b)
 
+![image](https://github.com/user-attachments/assets/4fae77c9-2bcc-41e5-9971-6bcc4c436b36)
 
 Training with lr=0.01, batch_size=32, dropout_rate=0.1
 Validation loss: 5395.2891
